@@ -44,13 +44,37 @@ TwoWire I2Cone = TwoWire(1);
 Adafruit_BME280 bme;
 
 float temperature; 
+String topicTemp,topicPreassur,topicHumidity;
 
 void setup()
-{
+{   
     Serial.begin(115200);
     sleep(5); // wait for serial
+    
+    #ifdef SensorUUIDTemp 
+        topicTemp = String("sensor/").concat(String(SensorUUIDTemp)); 
+    #endif
+    #ifdef SensorUUIDPreassur 
+        topicPreassur = String("sensor/").concat(String(SensorUUIDPreassur));
+    #endif
+    #ifdef SensorUUIDHumidity
+        topicHumidity = String("sensor/").concat(String(SensorUUIDHumidity));
+    #endif
 
     Serial.println("started...");
+    Serial.print("Setting up display...");
+    //Set up and reset the OLED
+    pinMode(OLED_RESET, OUTPUT);
+    digitalWrite(OLED_RESET, LOW);
+    delay(50);
+    digitalWrite(OLED_RESET, HIGH);
+    display.init();
+    display.setFont(ArialMT_Plain_24);
+    display.setTextAlignment(TEXT_ALIGN_LEFT);
+    Serial.println(" done.");
+
+    display.drawString(5,10,"Setting up ...");
+    display.display();
 
     Serial.print("Setting up bme280...");
     // setup the BME280 sensor
@@ -65,24 +89,14 @@ void setup()
             ; // effectively halts the whole system
     }
     Serial.println(" done.");
-
-    Serial.print("Setting up display...");
-    //Set up and reset the OLED
-    pinMode(OLED_RESET, OUTPUT);
-    digitalWrite(OLED_RESET, LOW);
-    delay(50);
-    digitalWrite(OLED_RESET, HIGH);
-    display.init();
-
-    display.setFont(ArialMT_Plain_24);
-    display.setTextAlignment(TEXT_ALIGN_LEFT);
-    Serial.println(" done.");
-
     Serial.print("Setting up mqtt...");
     mqttClient.setServer(MQTT_ADDRESS, MQTT_PORT);
-    mqttClient.setKeepAlive(DISPLAY_UPDATE_RATE + 5);
-    mqttClient.setSocketTimeout(DISPLAY_UPDATE_RATE + 5);
+    mqttClient.setKeepAlive(DISPLAY_UPDATE_RATE+10);
+    mqttClient.setSocketTimeout(DISPLAY_UPDATE_RATE+10);
     Serial.println(" done.");
+    
+    display.drawString(20,35,"done");
+    display.display();
 }
 
 void loop()
@@ -95,7 +109,7 @@ void loop()
     if (!mqttClient.connected())
     {
         Serial.print("Connection to mqtt...");
-        if (mqttClient.connect("T-Systems Arduino 001"))
+        if (mqttClient.connect(SensorUUIDTemp))
         {
             Serial.println(" done.");
         }
@@ -107,16 +121,15 @@ void loop()
         }
     }
     temperature = bme.readTemperature();
-
     // update current time (may don't do this in every tick)
     timeClient.update();
 
     // publish data
-    mqttClient.publish(topic, String(temperature).c_str()); 
+    if(topicTemp!=NULL)     mqttClient.publish(topicTemp.c_str(), String(temperature).c_str());
+    if(topicHumidity!=NULL) mqttClient.publish(topicHumidity.c_str(), String(bme.readHumidity()).c_str());     
+    if(topicPreassur!=NULL) mqttClient.publish(topicPreassur.c_str(), String(bme.readPressure()).c_str());
 
- // read & log data
     display.resetDisplay();
-
     display.drawString(20,5,timeClient.getFormattedTime());
     display.drawString(20,35,String(temperature).c_str());
     display.drawString(85,35,"°C");
