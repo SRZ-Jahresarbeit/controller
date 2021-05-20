@@ -11,8 +11,9 @@
 #include <ctime>
 #include <PubSubClient.h>
 
-#define SensorUUID "<UUID>"
-#define topic "sensor/<UUID>"
+#define SensorUUIDTemp <uuid for Temperatur>
+#define SensorUUIDPreassur <uuid for Preassur>
+#define SensorUUIDHumidity <uuid for Humidity>
 
 #define OLED_I2C_ADDR 0x3C
 #define OLED_RESET 16
@@ -21,10 +22,10 @@
 
 #define DISPLAY_UPDATE_RATE 15 // seconds
 
-#define SSID "<>"
-#define SSID_PASS "<>"
+#define SSID <WLAN SSID>
+#define SSID_PASS <WLAN PASS>
 
-#define MQTT_ADDRESS "<>"
+#define MQTT_ADDRESS <MQTT SERVER>
 #define MQTT_PORT 1883
 
 #define SDA 21
@@ -116,9 +117,9 @@ void loop()
  // read & log data
     display.resetDisplay();
 
-    display.drawString(0,0,timeClient.getFormattedTime());
-    display.drawString(0,20,String(temperature).c_str());
-    display.drawString(5,20,"°C");
+    display.drawString(20,5,timeClient.getFormattedTime());
+    display.drawString(20,35,String(temperature).c_str());
+    display.drawString(85,35,"°C");
     display.display();
 
     mqttClient.loop();
