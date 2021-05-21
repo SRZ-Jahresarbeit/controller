@@ -52,13 +52,13 @@ void setup()
     sleep(5); // wait for serial
     
     #ifdef SensorUUIDTemp 
-        topicTemp = String("sensor/").concat(String(SensorUUIDTemp)); 
+        topicTemp = String("sensor_id/").concat(String(SensorUUIDTemp)); 
     #endif
     #ifdef SensorUUIDPreassur 
-        topicPreassur = String("sensor/").concat(String(SensorUUIDPreassur));
+        topicPreassur = String("sensor_id/").concat(String(SensorUUIDPreassur));
     #endif
     #ifdef SensorUUIDHumidity
-        topicHumidity = String("sensor/").concat(String(SensorUUIDHumidity));
+        topicHumidity = String("sensor_id/").concat(String(SensorUUIDHumidity));
     #endif
 
     Serial.println("started...");
