@@ -11,22 +11,22 @@
 #include <ctime>
 #include <PubSubClient.h>
 
-#define SensorUUIDTemp <uuid for Temperatur>
-#define SensorUUIDPreassur <uuid for Preassur>
-#define SensorUUIDHumidity <uuid for Humidity>
+#define SensorUUIDTemp      <uuid for Temperatur>
+#define SensorUUIDPreassur  <uuid for Preassur>
+#define SensorUUIDHumidity  <uuid for Humidity>
 
-#define OLED_I2C_ADDR 0x3C
-#define OLED_RESET 16
-#define OLED_SDA 4
-#define OLED_SCL 15
+#define OLED_I2C_ADDR   0x3C
+#define OLED_RESET      16
+#define OLED_SDA        4
+#define OLED_SCL        15
 
 #define DISPLAY_UPDATE_RATE 15 // seconds
 
-#define SSID <WLAN SSID>
-#define SSID_PASS <WLAN PASS>
+#define SSID        <WLAN SSID>
+#define SSID_PASS   <WLAN PASS>
 
-#define MQTT_ADDRESS <MQTT SERVER>
-#define MQTT_PORT 1883
+#define MQTT_ADDRESS    <MQTT SERVER>
+#define MQTT_PORT       1883
 
 #define SDA 21
 #define SCL 13
@@ -52,13 +52,13 @@ void setup()
     sleep(5); // wait for serial
     
     #ifdef SensorUUIDTemp 
-        topicTemp = String("sensor/").concat(String(SensorUUIDTemp)); 
+        topicTemp.concat(String(SensorUUIDTemp)); 
     #endif
     #ifdef SensorUUIDPreassur 
-        topicPreassur = String("sensor/").concat(String(SensorUUIDPreassur));
+        topicPreassur.concat(String(SensorUUIDPreassur));
     #endif
     #ifdef SensorUUIDHumidity
-        topicHumidity = String("sensor/").concat(String(SensorUUIDHumidity));
+        topicHumidity.concat(String(SensorUUIDHumidity));
     #endif
 
     Serial.println("started...");
@@ -120,12 +120,13 @@ void loop()
             return;
         }
     }
+    
     temperature = bme.readTemperature();
     // update current time (may don't do this in every tick)
     timeClient.update();
 
     // publish data
-    if(topicTemp!=NULL)     mqttClient.publish(topicTemp.c_str(), String(temperature).c_str());
+    if(topicTemp!=NULL)     mqttClient.publish(topicTemp.c_str(), String(temperature).c_str());             
     if(topicHumidity!=NULL) mqttClient.publish(topicHumidity.c_str(), String(bme.readHumidity()).c_str());     
     if(topicPreassur!=NULL) mqttClient.publish(topicPreassur.c_str(), String(bme.readPressure()).c_str());
 
